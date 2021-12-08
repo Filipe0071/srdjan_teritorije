@@ -7,7 +7,7 @@ ESX.RegisterServerCallback('esx:zauzeta', function (source, cb, brojzone, owner,
   local xPlayer = ESX.GetPlayerFromId(source)
   local kurac = #(GetEntityCoords(GetPlayerPed(source)) - koordezone)
 if kurac < 10.0 then
-
+  saljilog("Srdjan_teritorije", GetPlayerName(source) .. " je zauzeo teritoriju T:" .. brojzone .. " njegova organizacija je " .. xPlayer.job.label)
             MySQL.Sync.execute(
                 'UPDATE zone SET  owner = @owner  WHERE brojzone = @brojzone',
                 {
@@ -37,6 +37,7 @@ if kurac < 10.0 then
           template = '<div style="padding: 1vw; margin: 0.5vw; background-color: rgba(0,0,0 , 0.5); border-radius: 10px;"><i class="far fa-bell"></i> {0}<br>  </div>',
            args = { 'Teritorije : ' .. xPlayer.job.label .. ' nije uspela da zauzime zonu  T:' .. brojzone  }
           })
+          saljilog("Srdjan_teritorije", GetPlayerName(source) .. " nije uspeo da zauzme zonu T:" .. brojzone .. " njegova organizacija je " .. xPlayer.job.label)
       end
       MySQL.Sync.execute(
         'UPDATE zone SET  zauzimase = 0 WHERE brojzone = @brojzone',
@@ -75,6 +76,7 @@ ESX.RegisterServerCallback('esx:prekinizauzimanje', function (source, cb, brojzo
           template = '<div style="padding: 1vw; margin: 0.5vw; background-color: rgba(0,0,0 , 0.5); border-radius: 10px;"><i class="far fa-bell"></i> {0}<br>  </div>',
            args = { 'Teritorije : ' .. xPlayer.job.label .. ' nije uspela da zauzme zonu T:'  .. brojzone  }
           })
+          saljilog("Srdjan_teritorije", GetPlayerName(source) .. " je nije uspeo da zauzme teritoriju T:" .. brojzone .. " njegova organizacija je " .. xPlayer.job.label)
 end)
 ESX.RegisterServerCallback('esx:getZauzimase', function(source, cb, brojzone)
     local xPlayer= ESX.GetPlayerFromId(source)
@@ -157,4 +159,16 @@ end)
 
 
   
-  
+    function saljilog(name, message)
+      local poruka = {
+          {
+              ["color"] = 16711680,
+              ["title"] = "**".. name .."**",
+              ["description"] = message,
+              ["footer"] = {
+              ["text"] = "Srdjan teritorije ",
+              },
+          }
+        }
+      PerformHttpRequest(Config.DiscordLogWebHook, function(err, text, headers) end, 'POST', json.encode({username = "Srdjan teritorije log📜", embeds = poruka, avatar_url = ""}), { ['Content-Type'] = 'application/json' })
+  end
